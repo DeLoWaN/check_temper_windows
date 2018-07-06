@@ -114,7 +114,8 @@ elif value >= args.warning_threshold:
 else:
 	msg = 'Current temp is {}. Ok'.format(value)
 
-print(msg)
 if args.perf_data:
-	print('|temperature={};{};{}'.format(value,args.warning_threshold,args.critical_threshold))
+	print('{}|temperature={};{};{}'.format(msg,value,args.warning_threshold,args.critical_threshold))
+else:
+	print(msg)
 exit(exit_code)
