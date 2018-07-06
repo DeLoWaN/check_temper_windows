@@ -98,24 +98,30 @@ logger.debug('Product ID is {}'.format(PRODUCT_ID))
 logger.debug('Interface is {}'.format(INTERFACE))
 
 
-
-dev = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
-TDev = TemperDevice(dev)
-value = float(TDev.get_temperature())
-
 exit_code = 0
 
-if value >= args.critical_threshold:
-	exit_code = 2
-	msg = '{} is over {} ! Critical !'.format(value, args.critical_threshold)
-elif value >= args.warning_threshold:
-	exit_code = 1
-	msg = '{} is over {} ! Warning !'.format(value, args.warning_threshold)
-else:
-	msg = 'Current temp is {}. Ok'.format(value)
+try:
+	dev = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
+	TDev = TemperDevice(dev)
+	value = float(TDev.get_temperature())
+	if value >= args.critical_threshold:
+		exit_code = 2
+		msg = '{} is over {}! Critical!'.format(value, args.critical_threshold)
+	elif value >= args.warning_threshold:
+		exit_code = 1
+		msg = '{} is over {}! Warning!'.format(value, args.warning_threshold)
+	else:
+		msg = 'Current temp is {}. Ok.'.format(value)
 
-if args.perf_data:
-	print('{}|temperature={};{};{}'.format(msg,value,args.warning_threshold,args.critical_threshold))
-else:
-	print(msg)
+	if args.perf_data:
+		print('{}|temperature={};{};{}'.format(msg,value,args.warning_threshold,args.critical_threshold))
+	else:
+		print(msg)
+
+except Exception as e:
+	exit_code = 3
+	logger.error('Error getting temperature from USB device')
+	logger.error(e)
+	logger.error(traceback.format_exc(4))
+
 exit(exit_code)
